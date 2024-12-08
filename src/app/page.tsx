@@ -1,101 +1,140 @@
-import Image from "next/image";
+import Link from "next/link"
+import Image from "next/image"
+// import buttonUI from "../components/button"
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen bg-black text-green-500 relative overflow-hidden font-pixel">
+      {/* Matrix-like background */}
+      <div className="absolute inset-0 z-0">
+        {/* Base gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#001a13] via-[#002a20] to-[#001a13]"></div>
+        
+        {/* Binary code rain effect */}
+        <div className="absolute inset-0 overflow-hidden opacity-20">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute text-[#00ff9d] text-xs font-mono whitespace-nowrap"
+              style={{
+                left: `${i * 5}%`,
+                top: '-20px',
+                animation: `fall ${Math.random() * 5 + 10}s linear infinite`,
+                animationDelay: `-${Math.random() * 10}s`
+              }}
+            >
+              {'10100110'.repeat(20)}
+            </div>
+          ))}
+        </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+        {/* Data nodes and connections */}
+        <div className="absolute inset-0">
+          <svg className="w-full h-full opacity-10">
+            <defs>
+              <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                <circle cx="25" cy="25" r="1" fill="#00ff9d" className="animate-pulse"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+        </div>
+
+        {/* Data flow lines */}
+        <div className="absolute inset-0">
+          {[...Array(5)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute h-px bg-gradient-to-r from-transparent via-[#00ff9d] to-transparent"
+              style={{
+                top: `${20 + i * 15}%`,
+                left: '0',
+                right: '0',
+                opacity: 0.1,
+                animation: `dataflow ${3 + i}s linear infinite`
+              }}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          ))}
+        </div>
+      </div>
+
+      {/* Navigation */}
+      {/* Navigation */}
+<nav className="relative z-10 flex items-center justify-between p-4">
+  <Link href="/" className="text-2xl font-bold tracking-tighter hover:text-green-400">
+    data.fun
+  </Link>
+  <div className="flex items-center gap-4">
+    <Link href="/auctions" className="text-sm hover:text-green-400 transition-colors">
+      [Auctions]
+    </Link>
+    <Link href="/datasets" className="text-sm hover:text-green-400 transition-colors">
+      [Datasets]
+    </Link>
+    <Link href="/create" className="text-sm hover:text-green-400 transition-colors">
+      [Create]
+    </Link>
+  </div>
+</nav>
+      {/* Hero Section */}
+      <main className="relative z-10 container mx-auto px-4 pt-20 pb-40 text-center">
+        <div className="max-w-3xl mx-auto space-y-8">
+          <div className="flex items-center justify-center gap-8">
+            {/* Left Pepe */}
+            <div className="w-[240px] h-[240px] md:w-[300px] md:h-[300px] relative">
+              <iframe
+                src="https://tenor.com/embed/16717201"
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                className="giphy-embed"
+                allowFullScreen
+                style={{ 
+                  pointerEvents: 'none',
+                  transform: 'scale(2)',
+                }}
+              />
+            </div>
+            
+            <h1 className="text-[120px] md:text-[150px] font-bold tracking-tight animate-rainbow leading-none"
+                style={{
+                  WebkitTextStroke: '2px white',
+                  filter: 'drop-shadow(0 0 15px rgba(255,255,255,0.5))',
+                }}>
+              DATA.FUN
+            </h1>
+
+            {/* Right Pepe */}
+            <div className="w-[240px] h-[240px] md:w-[300px] md:h-[300px] relative">
+              <iframe
+                src="https://tenor.com/embed/16717201"
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                className="giphy-embed"
+                allowFullScreen
+                style={{ 
+                  pointerEvents: 'none',
+                  transform: 'scale(2)',
+                }}
+              />
+            </div>
+          </div>
+
+          <p className="text-2xl text-green-400">
+            Decentralized Data Marketplace
+          </p>
+            <button className="px-8 py-2 rounded-md bg-purple-500 text-white font-bold transition duration-200 hover:bg-white hover:text-black border-2 border-transparent hover:border-purple-500">
+              Launch App
+            </button>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Footer */}
+      <footer className="relative z-10 text-center p-4 text-green-300 text-sm">
+        © 2024 data.fun • Decentralized Data Exchange
       </footer>
     </div>
-  );
+  )
 }
+
