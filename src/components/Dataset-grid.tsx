@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { FileQuestion } from 'lucide-react'
+import Link from 'next/link'
 
 interface Dataset {
   id: string
@@ -84,25 +85,27 @@ export function DatasetGrid({ view, searchQuery }: { view: string, searchQuery: 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {filteredDatasets.map((dataset) => (
-        <Card key={dataset.id} className="bg-gray-900 border-gray-800 hover:border-cyan-500/50 transition-colors">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <CardTitle className="text-white">{dataset.title}</CardTitle>
-              <Badge variant="secondary" className="bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500/20">
-                {dataset.category}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-400">{dataset.description}</p>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <span className="text-cyan-500 font-semibold">{dataset.price}</span>
-            <Button variant="outline" size="sm" className="border-cyan-500 text-cyan-500 hover:bg-cyan-950">
-              {view === 'market' ? 'Buy Now' : 'Place Bid'}
-            </Button>
-          </CardFooter>
-        </Card>
+        <Link href={`/dataset/${dataset.id}`} key={dataset.id}>
+          <Card className="bg-gray-900 border-gray-800 hover:border-cyan-500/50 transition-colors">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-white">{dataset.title}</CardTitle>
+                <Badge variant="secondary" className="bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500/20">
+                  {dataset.category}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-400">{dataset.description}</p>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <span className="text-cyan-500 font-semibold">{dataset.price}</span>
+              <Button variant="outline" size="sm" className="border-cyan-500 text-cyan-500 hover:bg-cyan-950">
+                View Details
+              </Button>
+            </CardFooter>
+          </Card>
+        </Link>
       ))}
     </div>
   )
