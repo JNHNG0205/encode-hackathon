@@ -10,6 +10,7 @@
 	},
 	"dependencies": {
 		"next": "14.1.0",
+		"next-starter-v5": "file:",
 		"react": "^18.3",
 		"react-dom": "^18.3",
 		"thirdweb": "^5"
