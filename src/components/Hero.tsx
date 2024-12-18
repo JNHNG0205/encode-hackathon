@@ -11,7 +11,7 @@ export function Hero() {
       <div className="relative container mx-auto px-4 py-24 sm:py-32">
         <div className="text-center space-y-8">
           <Image
-            src="/dataauc.jpg"
+            src="/logo.webp"
             alt="DATA.AUC Logo"
             width={180}
             height={180}
@@ -26,7 +26,7 @@ export function Hero() {
           <div className="flex justify-center gap-4">
             <Link href="/home">
                 <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600 text-white">
-                  <a>Start Bidding</a>
+                  Start Bidding
                 </Button>
             </Link>
             <Button size="lg" variant="outline" className="text-cyan-500 border-cyan-500 hover:bg-cyan-950">

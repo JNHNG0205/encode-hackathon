@@ -85,11 +85,11 @@ export function ListDatasetForm() {
         <Label className="text-white">Listing Type</Label>
         <RadioGroup defaultValue="marketplace" className="mt-2" onValueChange={setListingType}>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="marketplace" id="marketplace" />
+            <RadioGroupItem value="marketplace" id="marketplace" className="text-white" />
             <Label htmlFor="marketplace" className="text-white">Sell in Marketplace</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="bidding" id="bidding" />
+            <RadioGroupItem value="bidding" id="bidding" className="text-white" />
             <Label htmlFor="bidding" className="text-white">Open for Bidding</Label>
           </div>
         </RadioGroup>

@@ -144,14 +144,12 @@ import { Footer } from '@/components/Footer'
 
 export default function Home() {
   return (
-    <><div className="min-h-screen bg-gray-950">
-      <Hero />
-      {/* <Features />
-      <HowItWorks /> */}
-      <CallToAction />
-      <Footer />
-    </div>
-    <img src="/logo.svg" alt="DATA.AUC Logo" height={100} width={100}/>
+    <>
+      <div className="min-h-screen bg-gray-950">
+        <Hero />
+        <CallToAction />
+        <Footer />
+      </div>
     </>
   )
 }
