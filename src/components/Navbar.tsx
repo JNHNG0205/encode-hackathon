@@ -14,6 +14,7 @@ export function Navbar() {
             </Link>
             <nav className="hidden md:flex space-x-4">
               <Link href="/home" className="text-gray-300 hover:text-white">Home</Link>
+              <Link href="/dashboard" className="text-gray-300 hover:text-white">Dashboard</Link>
               <Link href="/list-dataset" className="text-gray-300 hover:text-white">List Dataset</Link>
               <Link href="/about" className="text-gray-300 hover:text-white">About</Link>
             </nav>
