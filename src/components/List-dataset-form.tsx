@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/Label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/Radio-group'
 // import { Toaster } from '@/components/ui/toast'
 import { Upload } from 'lucide-react'
+import { upload } from "thirdweb/storage";
+import { client } from '@/app/client'
 
 export function ListDatasetForm() {
   const [file, setFile] = useState<File | null>(null)
@@ -22,17 +24,30 @@ export function ListDatasetForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    
-    // Simulate form submission
-    console.log('Form Data:', Object.fromEntries(formData))
-    console.log('File:', file)
-    console.log('Listing Type:', listingType)
 
-    // Show success toast
-    // Toaster({
-    //   title: "Dataset Listed Successfully",
-    //   description: "Your dataset has been submitted for review.",
-    // })
+    try {
+      if (!file) throw new Error('No file selected')
+      
+      // Upload file to IPFS using thirdweb v5
+      const uri = await upload({
+        client,
+        files: [file],
+      });
+
+      // Extract just the base hash without filename
+      const baseHash = uri.split('//')[1].split('/')[0]
+      console.log('IPFS Hash:', baseHash)
+      
+      // Add IPFS hash to form data
+      formData.append('ipfsHash', baseHash)
+      
+      // Continue with the rest of your form submission logic
+      console.log('Form Data:', Object.fromEntries(formData))
+      console.log('Listing Type:', listingType)
+    } catch (error) {
+      console.error('Error uploading to IPFS:', error)
+      // Handle error appropriately
+    }
   }
 
   return (
