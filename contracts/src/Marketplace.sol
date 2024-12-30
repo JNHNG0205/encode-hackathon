@@ -32,16 +32,16 @@ contract Marketplace {
         DatasetContract = DatasetNFT(_datasetContract);
     }
 
-    function listNewDataset(string memory _IPFSHash, uint256 price) public {
+    function listNewDataset(string memory _IPFSHash, uint256 _price) public {
         DatasetContract.createDataset(_IPFSHash, msg.sender);
         listingID[DatasetContract.getID()] = Listing(
             _IPFSHash,
             msg.sender,
-            price
+            _price
         );
         userListings[msg.sender].push(DatasetContract.getID());
 
-        emit DatasetListed(DatasetContract.getID(), msg.sender, price);
+        emit DatasetListed(DatasetContract.getID(), msg.sender, _price);
     }
 
     function buyDataset(uint256 _listingID) public payable {
@@ -56,15 +56,11 @@ contract Marketplace {
         listing.seller = msg.sender;
     }
 
-    function getUserListings(
-        address user
-    ) external view returns (uint256[] memory) {
+    function getUserListings(address user) external view returns (uint256[] memory) {
         return userListings[user];
     }
 
-    function getUserPurchases(
-        address user
-    ) external view returns (uint256[] memory) {
+    function getUserPurchases(address user) external view returns (uint256[] memory) {
         return userPurchases[user];
     }
 }
