@@ -1,9 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract Buyer {
+
+    struct Bid {
+        address bidder;
+        uint256 amount;
+        uint256 timestamp;
+    }
+
+    mapping(uint256 => Bid[]) public biddingHistory;
     mapping(uint256 => uint256) public highestBids;
     mapping(uint256 => address) public highestBidder;
     mapping(uint256 => address) public datasetSeller;
@@ -17,6 +26,12 @@ contract Buyer {
         if (highestBids[_datasetID] > 0) {
             payable(highestBidder[_datasetID]).transfer(highestBids[_datasetID]);
         }
+
+        biddingHistory[_datasetID].push(Bid({
+                    bidder: msg.sender,
+                    amount: msg.value,
+                    timestamp: block.timestamp
+                }));
 
         highestBids[_datasetID] = msg.value;
         highestBidder[_datasetID] = msg.sender;
@@ -50,5 +65,9 @@ contract Buyer {
         payable(seller).transfer(highestBids[_datasetID]);
         highestBids[_datasetID] = 0;
         highestBidder[_datasetID] = address(0);
+    }
+
+    function getBiddingHistory(uint256 _datasetID) public view returns (Bid[] memory) {
+        return biddingHistory[_datasetID];
     }
 }
