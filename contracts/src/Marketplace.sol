@@ -63,4 +63,42 @@ contract Marketplace {
     function getUserPurchases(address user) external view returns (uint256[] memory) {
         return userPurchases[user];
     }
+
+
+    //ADD ON
+    //display the datasets
+    function displayMarketplaceDatasets() public view returns (Listing[] memory) {
+    uint256 totalListings = DatasetContract.getID();
+    uint256 count = 0;
+
+
+    for (uint256 i = 1; i <= totalListings; i++) {
+        if (listingID[i].seller != address(0)) {
+            count++;
+        }
+    }
+
+    Listing[] memory activeListings = new Listing[](count);
+    uint256 index = 0;
+    for (uint256 i = 1; i <= totalListings; i++) {
+        if (listingID[i].seller != address(0)) {
+            activeListings[index] = listingID[i];
+            index++;
+        }
+    }
+
+    return activeListings;
+}
+
+    
+    function transferDatasetOwnership(uint256 _datasetID, address _newOwner) public {
+    Listing storage listing = listingID[_datasetID];
+    require(listing.seller == msg.sender, "Only the seller can transfer ownership");
+
+    listing.seller = _newOwner;
+
+    DatasetContract.transferFrom(msg.sender, _newOwner, _datasetID);
+}
+
+
 }

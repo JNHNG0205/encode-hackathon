@@ -27,4 +27,17 @@ contract DatasetNFT is ERC721 {
     function getID() public view returns (uint256) {
         return dataset_id;
     }
+
+    //ADD ON 
+    function fetchDatasetDetails(uint256 _datasetID) public view returns (Dataset memory)
+    {
+        require(_exists(_datasetID), "Dataset does not exist");
+        return getDataset[_datasetID];
+    }
+
+    function checkOwnership(uint256 _datasetID, address _owner) public view returns (bool)
+    {
+        return ownerOf(_datasetID) == _owner;
+    }
+
 }

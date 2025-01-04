@@ -1,0 +1,156 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.18;
+
+import "./DatasetNFT.sol";
+
+contract Bidding {
+    DatasetNFT public DatasetContract;
+
+    struct Auction {
+        address seller;
+        uint256 minBid;
+        uint256 highestBid;
+        address highestBidder;
+        bool active;
+    }
+
+    mapping(uint256 => Auction) public auctions;
+    mapping(address => uint256[]) public userBids;
+
+    event AuctionCreated(
+        uint256 indexed datasetId,
+        address seller,
+        uint256 minBid
+    );
+
+    event NewBid(
+        uint256 indexed datasetId,
+        address bidder,
+        uint256 bidAmount
+    );
+
+    event AuctionClosed(
+        uint256 indexed datasetId,
+        address seller,
+        address winner,
+        uint256 winningBid
+    );
+
+    constructor(address _datasetContract) {
+        DatasetContract = DatasetNFT(_datasetContract);
+    }
+
+    
+    function createAuction(uint256 _datasetId, uint256 _minBid) public {
+        require(_minBid > 0, "Minimum bid must be greater than zero");
+        require(
+            DatasetContract.checkOwnership(_datasetId, msg.sender),
+            "You must own the dataset"
+        );
+
+        auctions[_datasetId] = Auction({
+            seller: msg.sender,
+            minBid: _minBid,
+            highestBid: 0,
+            highestBidder: address(0),
+            active: true
+        });
+
+        emit AuctionCreated(_datasetId, msg.sender, _minBid);
+    }
+
+    
+    function placeBid(uint256 _datasetId) public payable {
+        Auction storage auction = auctions[_datasetId];
+        require(auction.active, "Auction is not active");
+        require(msg.value >= auction.minBid, "Bid must meet minimum bid");
+        require(
+            msg.value > auction.highestBid,
+            "Bid must be higher than the current highest bid"
+        );
+
+       
+        if (auction.highestBidder != address(0)) {
+            (bool success, ) = auction.highestBidder.call{
+                value: auction.highestBid
+            }("");
+            require(success, "Refund failed");
+        }
+
+      
+        auction.highestBid = msg.value;
+        auction.highestBidder = msg.sender;
+
+        userBids[msg.sender].push(_datasetId);
+
+        emit NewBid(_datasetId, msg.sender, msg.value);
+    }
+
+    
+    function closeAuction(uint256 _datasetId) public {
+        Auction storage auction = auctions[_datasetId];
+        require(auction.active, "Auction is already closed");
+        require(
+            auction.seller == msg.sender,
+            "Only the seller can close the auction"
+        );
+
+        auction.active = false;
+
+        if (auction.highestBidder != address(0)) {
+            
+            DatasetContract.transferFrom(
+                auction.seller,
+                auction.highestBidder,
+                _datasetId
+            );
+
+            
+            (bool success, ) = auction.seller.call{
+                value: auction.highestBid
+            }("");
+            require(success, "Transfer to seller failed");
+
+            emit AuctionClosed(
+                _datasetId,
+                auction.seller,
+                auction.highestBidder,
+                auction.highestBid
+            );
+        } else {
+            
+            emit AuctionClosed(_datasetId, auction.seller, address(0), 0);
+        }
+    }
+
+ 
+    function getUserBids(address _user)
+        public
+        view
+        returns (uint256[] memory)
+    {
+        return userBids[_user];
+    }
+
+ 
+    function getAuctionDetails(uint256 _datasetId)
+        public
+        view
+        returns (
+            address seller,
+            uint256 minBid,
+            uint256 highestBid,
+            address highestBidder,
+            bool active
+        )
+    {
+        Auction storage auction = auctions[_datasetId];
+        return (
+            auction.seller,
+            auction.minBid,
+            auction.highestBid,
+            auction.highestBidder,
+            auction.active
+        );
+    }
+}
