@@ -7,6 +7,8 @@ contract Bidding {
     DatasetNFT public DatasetContract;
 
     struct Auction {
+        uint256 auctionId;
+        uint256 tokenId;
         address seller;
         uint256 minBid;
         uint256 highestBid;
@@ -14,23 +16,24 @@ contract Bidding {
         bool active;
     }
 
+    uint256 public auctionCounter = 0;
     mapping(uint256 => Auction) public auctions;
     mapping(address => uint256[]) public userBids;
 
     event AuctionCreated(
-        uint256 indexed datasetId,
+        uint256 indexed auctionId,
         address seller,
         uint256 minBid
     );
 
     event NewBid(
-        uint256 indexed datasetId,
+        uint256 indexed auctionId,
         address bidder,
         uint256 bidAmount
     );
 
     event AuctionClosed(
-        uint256 indexed datasetId,
+        uint256 indexed auctionId,
         address seller,
         address winner,
         uint256 winningBid
@@ -40,15 +43,16 @@ contract Bidding {
         DatasetContract = DatasetNFT(_datasetContract);
     }
 
-    
-    function createAuction(uint256 _datasetId, uint256 _minBid) public {
+    function createAuction(uint256 _tokenId, uint256 _minBid) public {
         require(_minBid > 0, "Minimum bid must be greater than zero");
-        require(
-            DatasetContract.checkOwnership(_datasetId, msg.sender),
-            "You must own the dataset"
-        );
 
-        auctions[_datasetId] = Auction({
+        
+        auctionCounter++;
+
+        
+        auctions[auctionCounter] = Auction({
+            auctionId: auctionCounter,
+            tokenId: _tokenId,
             seller: msg.sender,
             minBid: _minBid,
             highestBid: 0,
@@ -56,18 +60,22 @@ contract Bidding {
             active: true
         });
 
-        emit AuctionCreated(_datasetId, msg.sender, _minBid);
+        emit AuctionCreated(auctionCounter, msg.sender, _minBid);
     }
 
-    
-    function placeBid(uint256 _datasetId) public payable {
-        Auction storage auction = auctions[_datasetId];
+   
+    function placeBid(uint256 _auctionId) public payable {
+        Auction storage auction = auctions[_auctionId];
         require(auction.active, "Auction is not active");
         require(msg.value >= auction.minBid, "Bid must meet minimum bid");
         require(
             msg.value > auction.highestBid,
             "Bid must be higher than the current highest bid"
         );
+         require(
+        msg.sender != auction.seller,
+        "Seller cannot place a bid on their own auction"
+    );
 
        
         if (auction.highestBidder != address(0)) {
@@ -77,18 +85,18 @@ contract Bidding {
             require(success, "Refund failed");
         }
 
-      
+        
         auction.highestBid = msg.value;
         auction.highestBidder = msg.sender;
 
-        userBids[msg.sender].push(_datasetId);
+        userBids[msg.sender].push(_auctionId);
 
-        emit NewBid(_datasetId, msg.sender, msg.value);
+        emit NewBid(_auctionId, msg.sender, msg.value);
     }
 
-    
-    function closeAuction(uint256 _datasetId) public {
-        Auction storage auction = auctions[_datasetId];
+   
+    function closeAuction(uint256 _auctionId) public {
+        Auction storage auction = auctions[_auctionId];
         require(auction.active, "Auction is already closed");
         require(
             auction.seller == msg.sender,
@@ -98,32 +106,29 @@ contract Bidding {
         auction.active = false;
 
         if (auction.highestBidder != address(0)) {
-            
+           
             DatasetContract.transferFrom(
                 auction.seller,
                 auction.highestBidder,
-                _datasetId
+                _auctionId
             );
 
             
-            (bool success, ) = auction.seller.call{
-                value: auction.highestBid
-            }("");
+            (bool success, ) = auction.seller.call{value: auction.highestBid}("");
             require(success, "Transfer to seller failed");
 
             emit AuctionClosed(
-                _datasetId,
+                _auctionId,
                 auction.seller,
                 auction.highestBidder,
                 auction.highestBid
             );
         } else {
-            
-            emit AuctionClosed(_datasetId, auction.seller, address(0), 0);
+            emit AuctionClosed(_auctionId, auction.seller, address(0), 0);
         }
     }
 
- 
+   
     function getUserBids(address _user)
         public
         view
@@ -132,10 +137,8 @@ contract Bidding {
         return userBids[_user];
     }
 
- 
-    function getAuctionDetails(uint256 _datasetId)
-        public
-        view
+    
+    function getAuctionDetails(uint256 _auctionId) public view
         returns (
             address seller,
             uint256 minBid,
@@ -144,7 +147,7 @@ contract Bidding {
             bool active
         )
     {
-        Auction storage auction = auctions[_datasetId];
+        Auction storage auction = auctions[_auctionId];
         return (
             auction.seller,
             auction.minBid,

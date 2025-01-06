@@ -5,9 +5,10 @@ import {DatasetNFT} from "./DatasetNFT.sol";
 
 contract Marketplace {
     DatasetNFT public DatasetContract;
+    uint256 public listingIdCounter;
 
     struct Listing {
-        string IPFSHash;
+        uint256 datasetID; 
         address seller;
         uint256 price;
     }
@@ -18,6 +19,7 @@ contract Marketplace {
 
     event DatasetListed(
         uint256 indexed listingId,
+        uint256 indexed datasetId,
         address seller,
         uint256 price
     );
@@ -33,19 +35,25 @@ contract Marketplace {
     }
 
     function listNewDataset(string memory _IPFSHash, uint256 _price) public {
-        DatasetContract.createDataset(_IPFSHash, msg.sender);
-        listingID[DatasetContract.getID()] = Listing(
-            _IPFSHash,
-            msg.sender,
-            _price
-        );
-        userListings[msg.sender].push(DatasetContract.getID());
+        uint256 datasetId = DatasetContract.getID() + 1; 
+        DatasetContract.createDataset(msg.sender, _IPFSHash); 
+        listingIdCounter++; 
 
-        emit DatasetListed(DatasetContract.getID(), msg.sender, _price);
+        listingID[listingIdCounter] = Listing({
+            datasetID: datasetId,
+            seller: msg.sender,
+            price: _price
+        });
+
+        userListings[msg.sender].push(listingIdCounter); 
+
+        emit DatasetListed(listingIdCounter, datasetId, msg.sender, _price);
     }
+
 
     function buyDataset(uint256 _listingID) public payable {
         Listing storage listing = listingID[_listingID];
+        
         require(msg.value == listing.price, "Wrong price");
 
         DatasetContract.transferFrom(listing.seller, msg.sender, _listingID);
@@ -68,8 +76,8 @@ contract Marketplace {
     //ADD ON
     //display the datasets
     function displayMarketplaceDatasets() public view returns (Listing[] memory) {
-    uint256 totalListings = DatasetContract.getID();
-    uint256 count = 0;
+        uint256 totalListings = DatasetContract.getID();
+        uint256 count = 0;
 
 
     for (uint256 i = 1; i <= totalListings; i++) {
