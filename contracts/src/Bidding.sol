@@ -19,6 +19,7 @@ contract Bidding {
     uint256 public auctionCounter = 0;
     mapping(uint256 => Auction) public auctions;
     mapping(address => uint256[]) public userBids;
+    mapping(address => uint256) public auctionEarnings;
 
     event AuctionCreated(
         uint256 indexed auctionId,
@@ -96,37 +97,31 @@ contract Bidding {
 
    
     function closeAuction(uint256 _auctionId) public {
-        Auction storage auction = auctions[_auctionId];
-        require(auction.active, "Auction is already closed");
-        require(
-            auction.seller == msg.sender,
-            "Only the seller can close the auction"
-        );
+    Auction storage auction = auctions[_auctionId];
+    require(auction.active, "Auction is already closed");
+    require(auction.seller == msg.sender, "Only the seller can close the auction");
 
-        auction.active = false;
+    auction.active = false;
 
-        if (auction.highestBidder != address(0)) {
-           
-            DatasetContract.transferFrom(
-                auction.seller,
-                auction.highestBidder,
-                _auctionId
-            );
+    if (auction.highestBidder != address(0)) {
+        DatasetContract.transferFrom(auction.seller, auction.highestBidder, _auctionId);
+        
+        // Transfer the winning bid to the seller
+        (bool success, ) = auction.seller.call{value: auction.highestBid}("");
+        require(success, "Transfer to seller failed");
 
-            
-            (bool success, ) = auction.seller.call{value: auction.highestBid}("");
-            require(success, "Transfer to seller failed");
+        auctionEarnings[auction.seller] += auction.highestBid;
 
-            emit AuctionClosed(
-                _auctionId,
-                auction.seller,
-                auction.highestBidder,
-                auction.highestBid
-            );
-        } else {
-            emit AuctionClosed(_auctionId, auction.seller, address(0), 0);
-        }
+        emit AuctionClosed(_auctionId, auction.seller, auction.highestBidder, auction.highestBid);
+    } else {
+        emit AuctionClosed(_auctionId, auction.seller, address(0), 0);
     }
+}
+
+// Add a function to fetch the seller's auction earnings
+function getAuctionEarnings(address seller) external view returns (uint256) {
+    return auctionEarnings[seller];
+}
 
    
     function getUserBids(address _user)

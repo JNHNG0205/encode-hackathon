@@ -18,6 +18,7 @@ contract Marketplace is ReentrancyGuard {
     mapping(uint256 => Listing) public listings;
     mapping(address => uint256[]) public userListings;
     mapping(address => uint256[]) public userPurchases;
+   mapping(address => uint256) public earnings;
 
     event DatasetListed(
         uint256 indexed listingId,
@@ -59,7 +60,7 @@ contract Marketplace is ReentrancyGuard {
     emit DatasetListed(listingIdCounter, datasetId, msg.sender, _price);
 }
 
-    
+    // Buy a listed dataset
     function buyDataset(uint256 _listingID) public payable nonReentrant {
         Listing storage listing = listings[_listingID];
         require(listing.isActive, "Listing is not active");
@@ -70,14 +71,19 @@ contract Marketplace is ReentrancyGuard {
         DatasetContract.transferFrom(listing.seller, msg.sender, listing.datasetID);
         payable(listing.seller).transfer(msg.value);
 
-        
+
+        earnings[listing.seller] += msg.value;
         listing.isActive = false;
         userPurchases[msg.sender].push(_listingID);
 
         emit DatasetSold(_listingID, listing.datasetID, listing.seller, msg.sender, listing.price);
     }
 
-    
+
+    function getEarnings(address seller) external view returns (uint256) {
+    return earnings[seller];
+}
+
     function delistDataset(uint256 _listingID) public nonReentrant {
         Listing storage listing = listings[_listingID];
         require(listing.seller == msg.sender, "Only the seller can delist");
@@ -88,17 +94,15 @@ contract Marketplace is ReentrancyGuard {
         emit DatasetDelisted(_listingID, listing.datasetID, msg.sender);
     }
 
-   
     function getUserListings(address user) external view returns (uint256[] memory) {
         return userListings[user];
     }
 
-   
     function getUserPurchases(address user) external view returns (uint256[] memory) {
         return userPurchases[user];
     }
 
-    
+
     function displayMarketplaceDatasets() public view returns (Listing[] memory) {
         uint256 totalListings = listingIdCounter;
         uint256 count = 0;
@@ -121,4 +125,26 @@ contract Marketplace is ReentrancyGuard {
 
         return activeListings;
     }
+
+    function getSoldDatasets(address seller) external view returns (uint256[] memory) {
+    uint256[] memory soldDatasets = new uint256[](userListings[seller].length);
+    uint256 count = 0;
+    
+    for (uint256 i = 0; i < userListings[seller].length; i++) {
+        uint256 listingID = userListings[seller][i];
+        Listing storage listing = listings[listingID];
+        if (!listing.isActive) {
+            soldDatasets[count] = listing.datasetID;
+            count++;
+        }
+    }
+    
+    uint256[] memory finalSoldDatasets = new uint256[](count);
+    for (uint256 i = 0; i < count; i++) {
+        finalSoldDatasets[i] = soldDatasets[i];
+    }
+    return finalSoldDatasets;
+}
+
+   
 }

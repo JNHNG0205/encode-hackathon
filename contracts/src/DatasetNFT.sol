@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract DatasetNFT is ERC721URIStorage {
     uint256 public dataset_id = 0;
+
     
     constructor() ERC721("Dataset Token", "DT") {}
     
@@ -13,6 +14,8 @@ contract DatasetNFT is ERC721URIStorage {
         dataset_id += 1;
         _mint(seller, dataset_id);
         _setTokenURI(dataset_id, tokenURI);
+
+        
         return dataset_id;
     }
     
@@ -28,4 +31,20 @@ contract DatasetNFT is ERC721URIStorage {
         
         setApprovalForAll(operator, true);
     }
+
+    function getOwnedDatasets(address user) public view returns (uint256[] memory) {
+    uint256[] memory ownedDatasets;
+    uint256 counter = 0;
+
+    for (uint256 i = 1; i <= dataset_id; i++) {
+        if (ownerOf(i) == user) {
+            ownedDatasets[counter] = i;
+            counter++;
+        }
+    }
+    return ownedDatasets;
+}
+
+
+
 }
