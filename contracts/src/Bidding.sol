@@ -106,7 +106,6 @@ contract Bidding {
     if (auction.highestBidder != address(0)) {
         DatasetContract.transferFrom(auction.seller, auction.highestBidder, _auctionId);
         
-        // Transfer the winning bid to the seller
         (bool success, ) = auction.seller.call{value: auction.highestBid}("");
         require(success, "Transfer to seller failed");
 
@@ -118,10 +117,9 @@ contract Bidding {
     }
 }
 
-// Add a function to fetch the seller's auction earnings
-function getAuctionEarnings(address seller) external view returns (uint256) {
-    return auctionEarnings[seller];
-}
+    function getAuctionEarnings(address seller) external view returns (uint256) {
+        return auctionEarnings[seller];
+    }
 
    
     function getUserBids(address _user)
