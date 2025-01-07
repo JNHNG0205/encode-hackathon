@@ -33,37 +33,46 @@ contract Marketplace is ReentrancyGuard {
         address buyer,
         uint256 price
     );
+    
     event DatasetDelisted(uint256 indexed listingId, uint256 indexed datasetId, address seller);
 
     constructor(address _datasetContract) {
         DatasetContract = DatasetNFT(_datasetContract);
     }
 
-    function listNewDataset(string memory _IPFSHash, uint256 _price) public {
-    uint256 datasetId = DatasetContract.createDataset(msg.sender, _IPFSHash); 
+    function listDataset(uint256 _datasetId, uint256 _price) public {
+    
+    require(DatasetContract.ownerOf(_datasetId) == msg.sender, "You must own the dataset to list it");
 
-    require(DatasetContract.ownerOf(datasetId) == msg.sender, "You must be the owner of the dataset to list it");
+    
+    for (uint256 i = 1; i <= listingIdCounter; i++) {
+        if (listings[i].datasetID == _datasetId && listings[i].isActive) {
+            revert("Dataset is already listed");
+        }
+    }
 
-   
     DatasetContract.approveMarketplace(address(this));
+
     listingIdCounter++;
 
     listings[listingIdCounter] = Listing({
-        datasetID: datasetId,
+        datasetID: _datasetId,
         seller: msg.sender,
         price: _price,
-       isActive:true
+        isActive: true
     });
 
     userListings[msg.sender].push(listingIdCounter);
 
-    emit DatasetListed(listingIdCounter, datasetId, msg.sender, _price);
+    emit DatasetListed(listingIdCounter, _datasetId, msg.sender, _price);
 }
+
 
     // Buy a listed dataset
     function buyDataset(uint256 _listingID) public payable nonReentrant {
         Listing storage listing = listings[_listingID];
         require(listing.isActive, "Listing is not active");
+        
         require(msg.value == listing.price, "Incorrect price");
         require(listing.seller != msg.sender, "Seller cannot buy their own dataset");
 
@@ -84,6 +93,7 @@ contract Marketplace is ReentrancyGuard {
     return earnings[seller];
 }
 
+    // Delist a dataset
     function delistDataset(uint256 _listingID) public nonReentrant {
         Listing storage listing = listings[_listingID];
         require(listing.seller == msg.sender, "Only the seller can delist");
@@ -94,15 +104,17 @@ contract Marketplace is ReentrancyGuard {
         emit DatasetDelisted(_listingID, listing.datasetID, msg.sender);
     }
 
+    // Get user listings
     function getUserListings(address user) external view returns (uint256[] memory) {
         return userListings[user];
     }
 
+    // Get user purchases
     function getUserPurchases(address user) external view returns (uint256[] memory) {
         return userPurchases[user];
     }
 
-
+    // Display active datasets in the marketplace
     function displayMarketplaceDatasets() public view returns (Listing[] memory) {
         uint256 totalListings = listingIdCounter;
         uint256 count = 0;
@@ -125,6 +137,7 @@ contract Marketplace is ReentrancyGuard {
 
         return activeListings;
     }
+
 
     function getSoldDatasets(address seller) external view returns (uint256[] memory) {
     uint256[] memory soldDatasets = new uint256[](userListings[seller].length);

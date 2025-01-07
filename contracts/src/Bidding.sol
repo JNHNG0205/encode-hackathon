@@ -46,6 +46,7 @@ contract Bidding {
 
     function createAuction(uint256 _tokenId, uint256 _minBid) public {
         require(_minBid > 0, "Minimum bid must be greater than zero");
+        require(DatasetContract.ownerOf(_tokenId) == msg.sender, "Caller is not the owner of the dataset");
 
         
         auctionCounter++;
@@ -117,9 +118,10 @@ contract Bidding {
     }
 }
 
-    function getAuctionEarnings(address seller) external view returns (uint256) {
-        return auctionEarnings[seller];
-    }
+// Add a function to fetch the seller's auction earnings
+function getAuctionEarnings(address seller) external view returns (uint256) {
+    return auctionEarnings[seller];
+}
 
    
     function getUserBids(address _user)
