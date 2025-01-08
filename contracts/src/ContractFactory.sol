@@ -30,7 +30,7 @@ contract ContractFactory {
         string memory name,
         string memory symbol
     ) public returns (address) {
-        DatasetNFT datasetNFT = new DatasetNFT(name, symbol);
+         DatasetNFT datasetNFT = new DatasetNFT();
         datasetNFTContracts.push(address(datasetNFT));
         emit DatasetNFTCreated(address(datasetNFT));
 
