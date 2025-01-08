@@ -33,18 +33,26 @@ contract DatasetNFT is ERC721URIStorage {
     }
 
     function getOwnedDatasets(address user) public view returns (uint256[] memory) {
-    uint256[] memory ownedDatasets;
-    uint256 counter = 0;
+    uint256 count = 0;
+    for (uint256 i = 1; i <= dataset_id; i++) {
+        if (ownerOf(i) == user) {
+            count++;
+        }
+    }
+
+    uint256[] memory ownedDatasets = new uint256[](count);
+    uint256 index = 0;
 
     for (uint256 i = 1; i <= dataset_id; i++) {
         if (ownerOf(i) == user) {
-            ownedDatasets[counter] = i;
-            counter++;
+            ownedDatasets[index] = i;
+            index++;
         }
     }
     return ownedDatasets;
 }
 
-
-
 }
+
+
+

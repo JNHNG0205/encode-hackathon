@@ -2,8 +2,10 @@
 pragma solidity ^0.8.18;
 
 import "./DatasetNFT.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract Bidding {
+
+contract Bidding is ReentrancyGuard {
     DatasetNFT public DatasetContract;
 
     struct Auction {
@@ -65,7 +67,7 @@ contract Bidding {
         emit AuctionCreated(auctionCounter, msg.sender, _minBid);
     }
 
-    function placeBid(uint256 _auctionId) public payable {
+    function placeBid(uint256 _auctionId) public payable nonReentrant {
         Auction storage auction = auctions[_auctionId];
         require(auction.active, "Auction is not active");
         require(msg.value >= auction.minBid, "Bid must meet minimum bid");
@@ -85,7 +87,7 @@ contract Bidding {
         emit NewBid(_auctionId, msg.sender, msg.value);
     }
 
-    function closeAuction(uint256 _auctionId) public {
+    function closeAuction(uint256 _auctionId) public nonReentrant {
         Auction storage auction = auctions[_auctionId];
         require(auction.active, "Auction is already closed");
         require(auction.seller == msg.sender, "Only the seller can close the auction");
