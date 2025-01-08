@@ -17,6 +17,9 @@ contract Deploy is Script {
         Marketplace marketplace = new Marketplace(address(datasetNFT));
         console.log("Marketplace deployed at:", address(marketplace));
 
+        Bidding bidding = new Bidding(address(datasetNFT), address(marketplace));
+        console.log("Bidding deployed at:", address(bidding));
+
         vm.stopBroadcast();
     }
 }
