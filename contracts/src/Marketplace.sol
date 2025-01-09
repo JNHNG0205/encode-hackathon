@@ -43,13 +43,7 @@ contract Marketplace is ReentrancyGuard {
     function listDataset(uint256 _datasetId, uint256 _price) public {
     
     require(DatasetContract.ownerOf(_datasetId) == msg.sender, "You must own the dataset to list it");
-
-    
-    for (uint256 i = 1; i <= listingIdCounter; i++) {
-        if (listings[i].datasetID == _datasetId && listings[i].isActive) {
-            revert("Dataset is already listed");
-        }
-    }
+    require(!isTokenListed(_datasetId), "Token is already listed");
 
     DatasetContract.approveMarketplace(address(this));
 
@@ -159,5 +153,25 @@ contract Marketplace is ReentrancyGuard {
     return finalSoldDatasets;
 }
 
-   
+   function isTokenListed(uint256 _datasetId) public view returns (bool) {
+    for (uint256 i = 1; i <= listingIdCounter; i++) {
+        if (listings[i].datasetID == _datasetId && listings[i].isActive) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function getListingDetails(uint256 _datasetId) public view returns (bool isListed, uint256 price) {
+  
+    for (uint256 i = 1; i <= listingIdCounter; i++) {
+     
+        if (listings[i].datasetID == _datasetId && listings[i].isActive) {
+            return (true, listings[i].price); 
+        }
+    }
+    return (false, 0); 
+}
+
 }
