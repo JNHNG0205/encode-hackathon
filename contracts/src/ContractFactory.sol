@@ -25,29 +25,31 @@ contract ContractFactory {
     // Event to log the creation of a Marketplace contract
     event MarketplaceContractCreated(address indexed marketplaceContractAddress);
 
+    // Event to log a new auction creation
+    event AuctionCreated(uint256 indexed auctionId, address indexed seller, uint256 minBid);
+
     // Function to deploy a new DatasetNFT contract
-    function createDatasetNFT(
-        string memory name,
-        string memory symbol
-    ) public returns (address) {
-         DatasetNFT datasetNFT = new DatasetNFT();
+    function createDatasetNFT() public returns (address) {
+        DatasetNFT datasetNFT = new DatasetNFT();
         datasetNFTContracts.push(address(datasetNFT));
         emit DatasetNFTCreated(address(datasetNFT));
-
-        // Approve the marketplace to manage the created DatasetNFT
-        approveMarketplace(address(datasetNFT));
 
         return address(datasetNFT);
     }
 
+    // Function to create a new dataset via DatasetNFT's createDataset method
+    function createDatasetInNFT(address datasetNFTAddress, address seller, string memory tokenURI) public returns (uint256) {
+        DatasetNFT datasetNFT = DatasetNFT(datasetNFTAddress);
+        uint256 datasetId = datasetNFT.createDataset(seller, tokenURI);
+        
+        return datasetId;
+    }
+
     // Function to deploy a new Bidding contract
-    function createBidding(address _datasetNFTContract) public returns (address) {
-        Bidding biddingContract = new Bidding(_datasetNFTContract);
+    function createBidding(address _datasetNFTContract, address _marketplaceContract) public returns (address) {
+        Bidding biddingContract = new Bidding(_datasetNFTContract, _marketplaceContract);
         biddingContracts.push(address(biddingContract));
         emit BiddingContractCreated(address(biddingContract));
-
-        // Approve the Bidding contract to interact with DatasetNFT
-        approveBidding(address(biddingContract));
 
         return address(biddingContract);
     }
@@ -58,22 +60,24 @@ contract ContractFactory {
         marketplaceContracts.push(address(marketplaceContract));
         emit MarketplaceContractCreated(address(marketplaceContract));
 
-        // Approve the Marketplace to manage DatasetNFT
-        approveMarketplace(address(marketplaceContract));
-
         return address(marketplaceContract);
     }
 
-    // Function to approve the Marketplace to manage DatasetNFT (approve operation)
-    function approveMarketplace(address _marketplace) internal {
-        DatasetNFT datasetNFT = DatasetNFT(_marketplace);
-        datasetNFT.approve(address(_marketplace), 1); // Approve a specific dataset ID
-    }
+    // Function to create an auction in the Bidding contract
+    function createAuctionInBidding(
+        address biddingContractAddress,
+        uint256 tokenId,
+        uint256 minBid
+    ) public returns (uint256) {
+        Bidding biddingContract = Bidding(biddingContractAddress);
 
-    // Function to approve the Bidding contract to place bids on DatasetNFT
-    function approveBidding(address _biddingContract) internal {
-        DatasetNFT datasetNFT = DatasetNFT(_biddingContract);
-        datasetNFT.approve(address(_biddingContract), 1); // Approve a specific dataset for bidding
+        // Call the createAuction function in the Bidding contract
+        biddingContract.createAuction(tokenId, minBid);
+
+        // Emit an event after auction is created
+        emit AuctionCreated(tokenId, msg.sender, minBid);
+
+        return tokenId; // Returning the tokenId just for reference
     }
 
     // Function to get all deployed DatasetNFT contracts
