@@ -2,6 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "../lib/openzeppelin-contracts/
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract DatasetNFT is ERC721URIStorage {
