@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "./DatasetNFT.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "../lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
 import "./Marketplace.sol";
 
 contract Bidding is ReentrancyGuard {
@@ -31,11 +31,7 @@ contract Bidding is ReentrancyGuard {
         uint256 minBid
     );
 
-    event NewBid(
-        uint256 indexed auctionId,
-        address bidder,
-        uint256 bidAmount
-    );
+    event NewBid(uint256 indexed auctionId, address bidder, uint256 bidAmount);
 
     event AuctionClosed(
         uint256 indexed auctionId,
@@ -57,10 +53,10 @@ contract Bidding is ReentrancyGuard {
             "Caller is not the owner of the dataset"
         );
 
-         require(
-        !MarketplaceContract.isTokenListed(_tokenId),
-        "Dataset is already listed in the marketplace"
-    );
+        require(
+            !MarketplaceContract.isTokenListed(_tokenId),
+            "Dataset is already listed in the marketplace"
+        );
 
         auctionCounter++;
 
@@ -77,8 +73,6 @@ contract Bidding is ReentrancyGuard {
 
         emit AuctionCreated(auctionCounter, msg.sender, _minBid);
     }
-
-  
 
     // Place a bid on an auction
     function placeBid(uint256 _auctionId) public payable nonReentrant {
@@ -131,9 +125,9 @@ contract Bidding is ReentrancyGuard {
             );
 
             // Transfer funds to the seller
-            (bool success, ) = auction.seller.call{
-                value: auction.highestBid
-            }("");
+            (bool success, ) = auction.seller.call{value: auction.highestBid}(
+                ""
+            );
             require(success, "Transfer to seller failed");
 
             auctionEarnings[auction.seller] += auction.highestBid;
@@ -152,11 +146,9 @@ contract Bidding is ReentrancyGuard {
     }
 
     // Get seller's auction earnings
-    function getAuctionEarnings(address seller)
-        external
-        view
-        returns (uint256)
-    {
+    function getAuctionEarnings(
+        address seller
+    ) external view returns (uint256) {
         return auctionEarnings[seller];
     }
 
@@ -166,7 +158,9 @@ contract Bidding is ReentrancyGuard {
     }
 
     // Get details of a specific auction
-    function getAuctionDetails(uint256 _auctionId)
+    function getAuctionDetails(
+        uint256 _auctionId
+    )
         public
         view
         returns (
