@@ -28,7 +28,7 @@ export default function ListDatasetCard({ selectedDataset, setSelectedDataset }:
     const { data, isPending, error } = useReadContract({
         contract,
         method: "function getOwnedDatasets(address user) view returns (uint256[] tokenIds, string[] names, string[] tokenURIs)",
-        params: [activeAccount?.address],
+        params: [activeAccount?.address || "0x0000000000000000000000000000000000000000"],
     })
 
     const handleSelectDataset = (id: bigint) => {

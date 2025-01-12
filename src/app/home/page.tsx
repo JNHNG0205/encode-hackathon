@@ -65,7 +65,7 @@ export default function HomePage() {
             </Button>
           </form>
         </div>
-        <DatasetGrid view={currentView} searchQuery={searchQuery} />
+        <DatasetGrid view={currentView}/>
       </main>
     </div>
   )
