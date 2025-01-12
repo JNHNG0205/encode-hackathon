@@ -1,5 +1,5 @@
 # Data.Auc
-## What is Data.Auc used for 
+## What is Data.Auc 
 
 Data.Auc is a Web3-based platform that enables a secure, decentralized data marketplace and bidding system. It ensures fair pricing, transparency, and privacy through blockchain technology, smart contracts, and zero-knowledge proofs, fostering trust and efficiency in data transactions.
 
