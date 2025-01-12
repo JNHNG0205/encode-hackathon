@@ -22,6 +22,7 @@
 		"next-starter-v5": "file:",
 		"react": "^18.3",
 		"react-dom": "^18.3",
+		"react-toastify": "^11.0.2",
 		"recharts": "^2.15.0",
 		"tailwind-merge": "^2.5.5",
 		"tailwindcss-animate": "^1.0.7",

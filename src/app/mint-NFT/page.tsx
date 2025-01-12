@@ -12,21 +12,25 @@ import { upload } from "thirdweb/storage";
 import { client } from '@/app/client'
 import { Navbar } from '@/components/Navbar'
 import { CONTRACTS } from '@/contracts/contractAddress'
-import { ABIS } from '@/contracts/contractABI'
 import { getContract } from 'thirdweb'
-
+import { sepolia } from 'thirdweb/chains'
+import { prepareContractCall } from "thirdweb";
+import { useActiveAccount, useSendTransaction} from "thirdweb/react";
+import { ToastContainer, toast, Bounce } from 'react-toastify';
 
 export default function MintNFTPage() {
 
   const contract = getContract({
-    
+    client:client,
+    chain: sepolia,
+    address: CONTRACTS.datasetNFT
   })
 
-  const [file, setFile] = useState<File | null>(null)
-  const [listingType, setListingType] = useState('marketplace')
 
-  const contractAddress = CONTRACTS.datasetNFT;
-  const contractABI = ABIS.datasetNFT;
+  const [file, setFile] = useState<File | null>(null)
+  const [name, setName] = useState<string>('');
+
+  const { mutate: sendTransaction } = useSendTransaction()
 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,9 +39,6 @@ export default function MintNFTPage() {
     }
   }
 
-  async function createDataset () {
-    
-  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -46,7 +47,7 @@ export default function MintNFTPage() {
     try {
       if (!file) throw new Error('No file selected')
       
-      // Upload file to IPFS using thirdweb v5
+      // Upload file to IPFS using thirdweb
       const uri = await upload({
         client,
         files: [file],
@@ -59,12 +60,29 @@ export default function MintNFTPage() {
       // Add IPFS hash to form data
       formData.append('ipfsHash', baseHash)
       
-      // Continue with the rest of your form submission logic
+      // Prepare the contract call to mint the NFT
+      const createDataset = prepareContractCall({
+        contract,
+        method: "function createDataset(string datasetName, string tokenURI) returns (uint256)",
+        params: [name, baseHash],
+      });
+
+      await sendTransaction(createDataset)
+      
+      toast.success('Mint Dataset NFT Successful!', {
+        position: "bottom-left",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+        });
       console.log('Form Data:', Object.fromEntries(formData))
-      console.log('Listing Type:', listingType)
     } catch (error) {
-      console.error('Error uploading to IPFS:', error)
-      // Handle error appropriately
+      console.error('Error uploading to IPFS or sending transaction:', error)
     }
   }
     
@@ -94,7 +112,31 @@ export default function MintNFTPage() {
                     Selected file: {file.name}
                 </p>
                 )}
+
+                <div className='mt-2'>
+                  <Label htmlFor="file" className="text-white">DatasetNFT Name</Label>
+                  <Input id="name" type="text" className='text-black' value={name} onChange={(e) => setName(e.target.value)} />
+                </div>
             </div>
+
+
+            <Button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-600 text-white">
+              Mint Dataset NFT
+            </Button>
+
+            <ToastContainer
+              position="bottom-left"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick={false}
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="colored"
+              transition={Bounce}
+              />
         </form>
     </div>
     )

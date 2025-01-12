@@ -16,7 +16,7 @@ export function Navbar() {
             <Link href="/" className="text-gray-400 hover:text-white">
               <Image src="/logo.webp" alt="DATA.AUC Logo" width={100} height={100} />
             </Link>
-            <nav className="hidden md:flex space-x-4">
+            <nav className="hidden md:flex space-x-16">
               <Link href="/home" className="text-gray-300 hover:text-white">Home</Link>
               <Link href="/dashboard" className="text-gray-300 hover:text-white">Dashboard</Link>
               <Link href="/mint-NFT" className="text-gray-300 hover:text-white">Mint Dataset NFT</Link>

@@ -1,37 +1,48 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Database, Clock } from 'lucide-react'
+import { getContract } from 'thirdweb'
+import { sepolia } from 'thirdweb/chains'
+import { client } from '@/app/client'
+import { CONTRACTS } from '@/contracts/contractAddress'
+import { useReadContract } from 'thirdweb/react'
 
-interface DatasetDetailsProps {
-  id: string
-}
+// Hardcoded specifications
+const specifications = [
+  "Format: CSV",
+  "Size: 100MB",
+  "Records: 1M+",
+  "Updated: Monthly",
+  "Historical Data: 2 years",
+];
 
-export function DatasetDetails({ id }: DatasetDetailsProps) {
-  // In a real application, fetch this data from your API
-  const dataset = {
-    title: 'Customer Behavior Analysis',
-    owner: '0x1234...5678',
-    category: 'Marketing',
-    publishedDate: '2024-01-15',
-    description: 'Comprehensive dataset of customer purchasing patterns and behaviors. This dataset includes detailed information about customer demographics, purchase history, browsing behavior, and engagement metrics.',
-    specifications: [
-      'Format: CSV',
-      'Size: 2.5GB',
-      'Records: 1M+',
-      'Updated: Monthly',
-      'Historical Data: 2 years'
-    ]
-  }
+export function DatasetDetails({ id }: { id: string }) {
+  
+  const contract = getContract({
+    client:client,
+    chain: sepolia,
+    address: CONTRACTS.marketplace
+  })
+
+  const { data, isPending } = useReadContract({
+    contract,
+    method:
+      "function getListingDetails(uint256 _datasetId) view returns (bool isListed, uint256 price, string title, string category, string description)",
+    params: [BigInt(id)],
+  });
+
+  // Destructure the data array
+  const [isListed, price, title, category, description] = data || [];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-white mb-4">{dataset.title}</h1>
+        <h1 className="text-3xl font-bold text-white mb-4">{title}</h1>
         <div className="flex items-center gap-4 text-gray-400">
           <Badge variant="outline" className="bg-gray-800/50">
             ID: {id}
           </Badge>
-          <span>Owned by {dataset.owner}</span>
+          <span>Owned by 0x85...105B</span>
         </div>
       </div>
 
@@ -43,7 +54,7 @@ export function DatasetDetails({ id }: DatasetDetailsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-400">{dataset.description}</p>
+          <p className="text-gray-400">{description}</p>
         </CardContent>
       </Card>
 
@@ -56,7 +67,7 @@ export function DatasetDetails({ id }: DatasetDetailsProps) {
         </CardHeader>
         <CardContent>
           <ul className="space-y-2 text-gray-400">
-            {dataset.specifications.map((spec, index) => (
+            {specifications.map((spec, index) => (
               <li key={index} className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
                 {spec}

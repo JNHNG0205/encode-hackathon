@@ -6,99 +6,124 @@ import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { Label } from '@/components/ui/Label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/Radio-group'
-// import { Toaster } from '@/components/ui/toast'
 import { Upload } from 'lucide-react'
 import { upload } from "thirdweb/storage";
 import { client } from '@/app/client'
+import { getContract } from 'thirdweb'
+import { useActiveAccount } from 'thirdweb/react'
+import { sepolia } from 'thirdweb/chains'
+import { CONTRACTS } from '@/contracts/contractAddress'
+import ListDatasetCard from './card-detail/ListDatasetCard'
+import { useSendTransaction } from 'thirdweb/react'
+import { prepareContractCall } from 'thirdweb'
 
 export function ListDatasetForm() {
-  const [file, setFile] = useState<File | null>(null)
-  const [listingType, setListingType] = useState('marketplace')
+  const activeAccount = useActiveAccount()
+  const { mutate: sendTransaction } = useSendTransaction();
+  const contract = getContract ({
+    client: client,
+    chain: sepolia,
+    address: CONTRACTS.marketplace
+  })
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFile(e.target.files[0])
-    }
-  }
+  const contract2 = getContract({
+    client: client,
+    chain: sepolia,
+    address: CONTRACTS.bidding
+  })
+
+  const [listingTitle, setListingTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [category, setCategory] = useState('')
+  const [price, setPrice] = useState(0)
+  const [listingType, setListingType] = useState('marketplace')
+  const [selectedDataset, setSelectedDataset] = useState<bigint | null>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-
-    try {
-      if (!file) throw new Error('No file selected')
-      
-      // Upload file to IPFS using thirdweb v5
-      const uri = await upload({
-        client,
-        files: [file],
-      });
-
-      // Extract just the base hash without filename
-      const baseHash = uri.split('//')[1].split('/')[0]
-      console.log('IPFS Hash:', baseHash)
-      
-      // Add IPFS hash to form data
-      formData.append('ipfsHash', baseHash)
-      
-      // Continue with the rest of your form submission logic
-      console.log('Form Data:', Object.fromEntries(formData))
-      console.log('Listing Type:', listingType)
-    } catch (error) {
-      console.error('Error uploading to IPFS:', error)
-      // Handle error appropriately
+    
+    if (listingType === 'marketplace' && selectedDataset !== null) {
+        const listDataset = prepareContractCall({
+            contract:contract,
+            method: "function listDataset(uint256 _datasetId, uint256 _price, string _title, string _category, string _description)",
+            params: [
+                selectedDataset,
+                BigInt(price * 1e18),
+                listingTitle,
+                category,
+                description,
+            ],
+        });
+        sendTransaction(listDataset);
+    } else if (listingType === 'bidding' && selectedDataset !== null) {
+        const createAuction = prepareContractCall({
+            contract:contract2,
+            method: "function createAuction(uint256 _tokenId, uint256 _minBid, string _title, string _description, string _category)",
+            params: [
+                selectedDataset,
+                BigInt(price * 1e18),
+                listingTitle,
+                description,
+                category,
+            ],
+        });
+        sendTransaction(createAuction);
     }
-  }
+
+    if (selectedDataset !== null) {
+        const approve = prepareContractCall({
+            contract,
+            method: "function approve(address to, uint256 tokenId)",
+            params: [CONTRACTS.marketplace, selectedDataset],
+        });
+        sendTransaction(approve);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto">
       <div>
-        <Label htmlFor="file" className="text-white">Upload Dataset (CSV)</Label>
-        <div className="mt-2 flex items-center justify-center w-full">
-          <label
-            htmlFor="file"
-            className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer bg-gray-900 hover:bg-gray-800 transition-colors"
-          >
-            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <Upload className="w-8 h-8 mb-4 text-gray-500" />
-              <p className="mb-2 text-sm text-gray-400">
-                <span className="font-semibold">Click to upload</span> or drag and drop
-              </p>
-              <p className="text-xs text-gray-500">CSV file (MAX. 100MB)</p>
-            </div>
-            <Input id="file" type="file" accept=".csv" className="hidden" onChange={handleFileChange} />
-          </label>
-        </div>
-        {file && (
-          <p className="mt-2 text-sm text-gray-400">
-            Selected file: {file.name}
-          </p>
-        )}
+        <Label htmlFor="dataset" className='text-white text-xl mb-2'>Choose Dataset to List</Label>
+        <ListDatasetCard selectedDataset={selectedDataset} setSelectedDataset={setSelectedDataset} />
       </div>
 
       <div>
         <Label htmlFor="title" className="text-white">Dataset Title</Label>
-        <Input id="title" name="title" className="mt-2 bg-gray-800 border-gray-700 text-white" required />
+        <Input id="title" name="title" className="mt-2 bg-gray-800 border-gray-700 text-white" required value={listingTitle} onChange={(e) => setListingTitle(e.target.value)} />
       </div>
 
       <div>
         <Label htmlFor="description" className="text-white">Description</Label>
-        <Textarea id="description" name="description" className="mt-2 bg-gray-800 border-gray-700 text-white" required />
+        <Textarea id="description" name="description" className="mt-2 bg-gray-800 border-gray-700 text-white" required value={description} onChange={(e) => setDescription(e.target.value)} />
       </div>
 
       <div>
-        <Label htmlFor="category" className="text-white">Category</Label>
-        <Input id="category" name="category" className="mt-2 bg-gray-800 border-gray-700 text-white" required />
+        <Label htmlFor="category" className="text-white">Category</Label><br />
+        <select 
+          id="category" 
+          name="category" 
+          className="mt-2 bg-gray-800 border-gray-700 text-white" 
+          required 
+          value={category} 
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="" disabled>Select a category</option>
+          <option value="finance">Finance</option>
+          <option value="real-estate">Real Estate</option>
+          <option value="trading">Trading</option>
+          <option value="medical">Medical</option>
+          <option value="other">Other</option>
+        </select>
       </div>
 
       <div>
         <Label htmlFor="price" className="text-white">Price (ETH)</Label>
-        <Input id="price" name="price" type="number" step="0.01" className="mt-2 bg-gray-800 border-gray-700 text-white" required />
+        <Input id="price" name="price" type="number" step="0.01" className="mt-2 bg-gray-800 border-gray-700 text-white" required value={price} onChange={(e) => setPrice(parseFloat(e.target.value))} />
       </div>
 
       <div>
         <Label className="text-white">Listing Type</Label>
-        <RadioGroup defaultValue="marketplace" className="mt-2" onValueChange={setListingType}>
+        <RadioGroup defaultValue={listingType} className="mt-2" onValueChange={setListingType}>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="marketplace" id="marketplace" className="text-white" />
             <Label htmlFor="marketplace" className="text-white">Sell in Marketplace</Label>

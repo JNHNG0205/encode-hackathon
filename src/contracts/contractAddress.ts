@@ -1,6 +1,5 @@
 export const CONTRACTS = {
-    datasetNFT: "0x4217b556a89e7df18c21e3d93fa5194ff6bb563d",
-    marketplace: "0x7f8f0af45f184a6a831634a2daf2dc31a273746c",
-    bidding: "0xe2ad49a7c2240bfd6b79ec8264d9eb19931a0f38",
-    factory: "0x3fe8db303e69ce7426068fd06c8c55e1acc043d6"
+    datasetNFT: "0xB20cd39958D4560a5618BbE712fB86585AC6a6e1",
+    marketplace: "0x556D1f1Af4ad5664767f1a6bce1Cd2aa91b77B25",
+    bidding: "0x923a59C9770aCb36Abb5634dFd29Fdbc41227C91",
 }
