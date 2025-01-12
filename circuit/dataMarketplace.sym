@@ -1,0 +1,7 @@
+1,1,0,main.isValid
+2,2,0,main.hashedData
+3,-1,0,main.rowCount
+4,-1,0,main.columnCount
+5,-1,0,main.dataHash
+6,-1,0,main.rowValid
+7,-1,0,main.colValid
