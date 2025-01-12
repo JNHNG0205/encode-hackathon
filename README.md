@@ -21,3 +21,18 @@ Data.Auc offers a secure, transparent, and efficient data marketplace by leverag
 3. Supported chain: Citrea
 4. Frontend: NEXT.JS, Shadcn UI
 
+## Contract Address (Citrea Testnet)
+DatasetNFT.sol
+0xE3FDB11d2E8c51044CA08C5B2479e940939DAb61
+https://explorer.testnet.citrea.xyz/address/0xE3FDB11d2E8c51044CA08C5B2479e940939DAb61?tab=contract
+
+Marketplace
+0x4dbe1aec56fcee5cbb1b8c610a77feaa0c6594da
+https://explorer.testnet.citrea.xyz/address/0x4dbe1aec56fcee5cbb1b8c610a77feaa0c6594da
+
+Bidding
+0x85ebd4343556aa71eb425a5ea3c6be759beed999
+https://explorer.testnet.citrea.xyz/address/0x85ebd4343556aa71eb425a5ea3c6be759beed999 
+
+
+
