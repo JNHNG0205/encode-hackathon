@@ -1,51 +1,29 @@
 
 ![tw-banner](https://github.com/thirdweb-example/next-starter/assets/57885104/20c8ce3b-4e55-4f10-ae03-2fe4743a5ee8)
 
-# thirdweb-next-starter
+# Problem Statement
 
-Starter template to build an onchain react native app with [thirdweb](https://thirdweb.com/) and [next](https://nextjs.org/).
+Data.Auc is a Web3-based platform that enables a secure, decentralized data marketplace and bidding system. It ensures fair pricing, transparency, and privacy through blockchain technology, smart contracts, and zero-knowledge proofs, fostering trust and efficiency in data transactions.
 
-## Installation
 
-Install the template using [thirdweb create](https://portal.thirdweb.com/cli/create)
+## Product Desription
+### ❓ Problem Statement 
+The problems commonly faced in traditional marketplaces include:<br/>
+○ Non-transparency <br/>
+○ Licensing and usage ambiguities 
 
-```bash
-  npx thirdweb create app --next
-```
+### 🌎 Vision 
+Data.Auc envisions a decentralized, transparent, and secure data marketplace that empowers users to confidently buy and sell data. Leveraging Web3 technologies, we aim to transform the data economy by ensuring trust, fair transactions, and data ownership for a global, efficient platform.
 
-## Environment Variables
+### 📢 Unique Value Proposition 
+Data.Auc offers a secure, transparent, and efficient data marketplace by leveraging Web3 technologies and Zero-Knowledge Proofs (ZKP). ZKPs ensure data privacy by allowing verification without exposing sensitive information, enhancing trust between buyers and sellers. This innovative approach guarantees secure transactions, fair pricing, and full data ownership, setting Data.Auc apart as a reliable solution for the modern data economy.
 
-To run this project, you will need to add the following environment variables to your .env file:
+## Tech Stack
+1. Tools: IPFS, Snarkjs
+2. Service integration layer: Thirdweb
+3. Supported chain: Citrea
+4. Frontend: NEXT.JS, Shadcn UI
 
-`CLIENT_ID`
-
-To learn how to create a client ID, refer to the [client documentation](https://portal.thirdweb.com/typescript/v5/client). 
-
-## Run locally
-
-Install dependencies
-
-```bash
-yarn
-```
-
-Start development server
-
-```bash
-yarn dev
-```
-
-Create a production build
-
-```bash
-yarn build
-```
-
-Preview the production build
-
-```bash
-yarn start
-```
 
 ## Resources
 
