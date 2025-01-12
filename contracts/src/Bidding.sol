@@ -18,6 +18,8 @@ contract Bidding is ReentrancyGuard {
         address highestBidder;
         bool active;
         bool fundsWithdrawn;
+        string title;
+        string description;
     }
 
     uint256 public auctionCounter = 0;
@@ -46,7 +48,12 @@ contract Bidding is ReentrancyGuard {
     }
 
     // Create an auction for a dataset
-    function createAuction(uint256 _tokenId, uint256 _minBid) public {
+    function createAuction(
+        uint256 _tokenId,
+        uint256 _minBid,
+        string memory _title,
+        string memory _description
+    ) public {
         require(_minBid > 0, "Minimum bid must be greater than zero");
         require(
             DatasetContract.ownerOf(_tokenId) == msg.sender,
@@ -68,7 +75,9 @@ contract Bidding is ReentrancyGuard {
             highestBid: 0,
             highestBidder: address(0),
             active: true,
-            fundsWithdrawn: false
+            fundsWithdrawn: false,
+            title: _title,
+            description: _description
         });
 
         emit AuctionCreated(auctionCounter, msg.sender, _minBid);

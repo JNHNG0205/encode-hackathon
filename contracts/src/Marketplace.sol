@@ -10,6 +10,9 @@ contract Marketplace is ReentrancyGuard {
 
     struct Listing {
         uint256 datasetID;
+        string title;
+        string category;
+        string description;
         address seller;
         uint256 price;
         bool isActive;
@@ -44,7 +47,13 @@ contract Marketplace is ReentrancyGuard {
         DatasetContract = DatasetNFT(_datasetContract);
     }
 
-    function listDataset(uint256 _datasetId, uint256 _price) public {
+    function listDataset(
+        uint256 _datasetId,
+        uint256 _price,
+        string memory _title,
+        string memory _category,
+        string memory _description
+    ) public {
         require(
             DatasetContract.ownerOf(_datasetId) == msg.sender,
             "You must own the dataset to list it"
@@ -57,6 +66,9 @@ contract Marketplace is ReentrancyGuard {
 
         listings[listingIdCounter] = Listing({
             datasetID: _datasetId,
+            title: _title,
+            category: _category,
+            description: _description,
             seller: msg.sender,
             price: _price,
             isActive: true

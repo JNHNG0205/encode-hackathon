@@ -7,15 +7,30 @@ import "../lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 contract DatasetNFT is ERC721URIStorage {
     uint256 public dataset_id = 0;
 
+    struct Dataset {
+        string name; // Name of the dataset
+        string tokenURI; // IPFS hash or metadata URI
+    }
+
+    // Mapping to store dataset details
+    mapping(uint256 => Dataset) public getDatasetDetails;
+
     constructor() ERC721("Dataset Token", "DT") {}
 
     function createDataset(
-        address seller,
+        string memory name,
         string memory tokenURI
     ) public returns (uint256) {
         dataset_id += 1;
-        _mint(seller, dataset_id);
+
+        // Mint the NFT
+        _mint(msg.sender, dataset_id);
+
+        // Set the token URI for the NFT
         _setTokenURI(dataset_id, tokenURI);
+
+        // Store the dataset details
+        getDatasetDetails[dataset_id] = Dataset(name, tokenURI);
 
         return dataset_id;
     }
@@ -24,11 +39,8 @@ contract DatasetNFT is ERC721URIStorage {
         return dataset_id;
     }
 
-    function checkOwnership(
-        uint256 _datasetID,
-        address _owner
-    ) public view returns (bool) {
-        return ownerOf(_datasetID) == _owner;
+    function checkOwnership(uint256 _datasetID) public view returns (bool) {
+        return ownerOf(_datasetID) == msg.sender;
     }
 
     function approveMarketplace(address operator) public {
@@ -55,5 +67,17 @@ contract DatasetNFT is ERC721URIStorage {
             }
         }
         return ownedDatasets;
+    }
+
+    function fetchDatasetDetails(
+        uint256 _datasetID
+    ) public view returns (string memory, string memory) {
+        require(
+            _datasetID > 0 && _datasetID <= dataset_id,
+            "Dataset does not exist"
+        );
+
+        Dataset memory dataset = getDatasetDetails[_datasetID];
+        return (dataset.name, dataset.tokenURI);
     }
 }
