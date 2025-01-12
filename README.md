@@ -3,7 +3,7 @@
 
 Data.Auc is a Web3-based platform that enables a secure, decentralized data marketplace and bidding system. It ensures fair pricing, transparency, and privacy through blockchain technology, smart contracts, and zero-knowledge proofs, fostering trust and efficiency in data transactions.
 
-### Product Desription
+### Product Description
 #### ❓ Problem Statement 
 The problems commonly faced in traditional marketplaces include:<br/>
 ▫️ Non-transparency <br/>
